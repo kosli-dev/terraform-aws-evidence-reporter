@@ -1,0 +1,66 @@
+variable "log_uploader_name" {
+  type        = string
+  default     = "ecs-exec-log-uploader"
+  description = "The name of the AWS resources related to the log uploader lambda."
+}
+
+variable "user_data_reporter_name" {
+  type        = string
+  default     = "ecs-exec-user-data-reporter"
+  description = "The name of the AWS resources related to the user-data reporter lambda."
+}
+
+variable "ecs_exec_log_bucket_name" {
+  type        = string
+  description = "The name of S3 bucket where ECS exec logs are stored."
+}
+
+variable "kosli_host" {
+  default = "https://app.kosli.com/"
+  type    = string
+}
+
+variable "kosli_org_name" {
+  type    = string
+  description = "Kosli organisation name (the value for the cli --org parameter)."
+}
+
+variable "kosli_audit_trail_name" {
+  type = string
+  description = "The Kosli audit trail name."
+}
+
+variable "kosli_api_token_ssm_parameter_name" {
+  description = "The name of the kosli_api_token SSM parameter name"
+  type        = string
+  default     = "kosli_api_token"
+}
+
+variable "kosli_cli_version" {
+  type        = string
+  description = "The Kosli cli version, should be set in format 2.4.1"
+}
+
+variable "LAYER_VERSION_ARN_BASH_UTILITIES" {
+  description = "ARN of the Lambda layer version that contains: jq"
+  default     = "arn:aws:lambda:eu-central-1:772819027869:layer:bash-utilities:1"
+  type        = string
+}
+
+variable "LAYER_VERSION_ARN_AWSCLI" {
+  description = "ARN of the Lambda layer version that contains aws cli"
+  default     = "arn:aws:lambda:eu-central-1:772819027869:layer:awscli:20"
+  type        = string
+}
+
+variable "recreate_missing_package" {
+  type        = bool
+  default     = true
+  description = "Whether to recreate missing Lambda package if it is missing locally or not."
+}
+
+variable "tags" {
+  type        = map(string)
+  description = "Tags to assign to the AWS resources."
+  default     = {}
+}
