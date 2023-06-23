@@ -1,0 +1,36 @@
+name: Upload lambda package to S3
+
+on:
+  repository_dispatch:
+    types: [upload-evidence-reporter-package]
+
+
+
+jobs:
+  upload:
+    runs-on: ubuntu-20.04
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1-node16
+      with:
+        role-to-assume: arn:aws:iam::${{ secrets.KOSLI_REPORTER_SOURCES_AWS_ACCOUNT_ID }}:role/${{ github.event.repository.name }}
+        aws-region: ${{ secrets.KOSLI_REPORTER_SOURCES_AWS_REGION }}
+        role-duration-seconds: 900
+        role-session-name: ${{ github.event.repository.name }}
+
+    - name: Upload reporter lambda package
+      id: upload-lambda-package
+      env:
+        TAG: ${{ github.event.client_payload.tag }}
+        S3_NAME: ${{ secrets.KOSLI_REPORTER_SOURCES_S3_NAME }}
+      run: |
+        KOSLI_CLI_VERSION="${TAG:1}"
+        curl -Lo kosli_${KOSLI_CLI_VERSION}_linux_amd64.tar.gz https://github.com/kosli-dev/cli/releases/download/${TAG}/kosli_${KOSLI_CLI_VERSION}_linux_amd64.tar.gz
+        tar -xf kosli_${KOSLI_CLI_VERSION}_linux_amd64.tar.gz -C . && rm kosli_${KOSLI_CLI_VERSION}_linux_amd64.tar.gz
+        zip -j kosli_lambda_${KOSLI_CLI_VERSION}.zip src/* kosli
+        aws s3 cp kosli_lambda_${KOSLI_CLI_VERSION}.zip s3://${{ secrets.KOSLI_REPORTER_SOURCES_S3_NAME }}/evidence-reporter/kosli_lambda_${KOSLI_CLI_VERSION}.zip
