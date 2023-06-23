@@ -9,19 +9,18 @@ module "log_uploader_lambda" {
   description   = "Send evidence reports to the Kosli app"
   handler       = "upload-log-file.handler"
   runtime       = "provided"
+  create_package = false
+  publish        = true
+
+  local_existing_package = data.null_data_source.downloaded_package.outputs["filename"]
+
   layers = [
     var.LAYER_VERSION_ARN_AWSCLI,
     var.LAYER_VERSION_ARN_BASH_UTILITIES
   ]
-  source_path = [
-    "${path.module}/src/bootstrap",
-    "${path.module}/src/upload-log-file.sh",
-    "${local.kosli_src_path}/kosli"
-  ]
+
   timeout        = 30
   memory_size    = 512
-  create_package = true
-  publish        = true
   create_role    = true
   role_name      = var.log_uploader_name
 
@@ -43,11 +42,7 @@ module "log_uploader_lambda" {
     }
   }
 
-  cloudwatch_logs_retention_in_days = 1
-
-  depends_on = [
-    null_resource.download_and_unzip
-  ]
+  cloudwatch_logs_retention_in_days = var.cloudwatch_logs_retention_in_days
 
   tags = var.tags
 }

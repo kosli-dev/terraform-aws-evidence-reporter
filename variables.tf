@@ -64,3 +64,15 @@ variable "tags" {
   description = "Tags to assign to the AWS resources."
   default     = {}
 }
+
+variable "cloudwatch_logs_retention_in_days" {
+  type        = number
+  default     = 7
+  description = "The retention period of reporter logs (days)."
+}
+
+variable "reporter_releases_host" {
+  type        = string
+  default     = "https://reporter-releases.kosli.com"
+  description = "Where to download the Reporter Lambda package."
+}
