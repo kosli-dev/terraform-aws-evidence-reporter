@@ -1,5 +1,5 @@
 # Kosli ECS evidence Reporter
-With Amazon [ECS Exec](https://aws.amazon.com/ru/blogs/containers/new-using-amazon-ecs-exec-access-your-containers-fargate-ec2/), you can directly interact with containers running on your infrastructure. The Kosli ECS Evidence Reporter Terraform module is used to deploy infrastructure for automating the sending of ECS exec reports to Kosli. Two types of reports are sent: a log file a log file (containing commands run using ECS Exec inside the container) and a user-identity report (indicating the identity of the user who started the ECS Exec session).
+With Amazon [ECS Exec](https://aws.amazon.com/ru/blogs/containers/new-using-amazon-ecs-exec-access-your-containers-fargate-ec2/), you can directly interact with containers running on your infrastructure. The Kosli ECS Evidence Reporter Terraform module is used to deploy infrastructure for automating the sending of ECS exec reports to Kosli. Two types of reports are sent: a log file (containing commands run using ECS Exec inside the container) and a user-identity report (indicating the identity of the user who started the ECS Exec session).
 
 ## Set up Kolsi API token
 1. Log in to the https://app.kosli.com/, go to your profile, copy the `API Key` value.
@@ -11,11 +11,12 @@ With Amazon [ECS Exec](https://aws.amazon.com/ru/blogs/containers/new-using-amaz
 3. Deploy the evidence reporter module:
 ```
 module "evidence-reporter" {
-  source = "kosli-dev/ecs-evidence-reporter/aws"
+  source  = "kosli-dev/ecs-evidence-reporter/aws"
+  version = "0.0.1"
 
-  kosli_org_name = "kosli"
+  kosli_org_name           = "kosli"
   ecs_exec_log_bucket_name = "my-ecs-log-bucket"
-  kosli_audit_trail_name = "staging-access"
+  kosli_audit_trail_name   = "staging-access"
 }
 ```
 4. Run the [ecs exec](https://awscli.amazonaws.com/v2/documentation/api/latest/reference/ecs/execute-command.html) command.

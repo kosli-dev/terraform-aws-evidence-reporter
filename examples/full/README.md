@@ -1,0 +1,1 @@
+This is an exapmple of the module configuration to deploy the ECS Evidence Reporter.
