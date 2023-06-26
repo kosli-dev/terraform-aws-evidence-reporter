@@ -1,4 +1,4 @@
-In order to deploy the evidence reporter module, you will need to do the following:
+In order to deploy the ECS evidence reporter module, you will need to do the following:
 
 1. Set up Kolsi API token:
   - Log in to the https://app.kosli.com/, go to your profile, copy the `API Key` value.
@@ -11,5 +11,3 @@ In order to deploy the evidence reporter module, you will need to do the followi
 4. Create a Terraform configuration: In order to use the evidence reporter module, you'll need to create a Terraform configuration. Here is the configuration [example](./examples).
 
 5. Initialize and run Terraform: Once you've created your Terraform configuration, you'll need to initialize Terraform by running the `terraform init` command in the same directory as your configuration files. This will download the necessary modules and providers for your configuration. Then, you can run the `terraform apply` command to apply your configuration.
-
-6. To check evidence reporter logs you can go to the AWS console -> Lambda service -> choose your lambda reporter function -> Monitor tab -> Logs tab.

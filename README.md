@@ -1,86 +1,22 @@
-# Kosli Reporter
-Terraform module to deploy the Kosli reporter - AWS lambda function that sends reports to the Kosli. At the moment module supports only reports of ECS and Lambda environment types.
+# Kosli ECS evidence Reporter
+With Amazon [ECS Exec](https://aws.amazon.com/ru/blogs/containers/new-using-amazon-ecs-exec-access-your-containers-fargate-ec2/), you can directly interact with containers running on your infrastructure. The Kosli ECS Evidence Reporter Terraform module is used to deploy infrastructure for automating the sending of ECS exec reports to Kosli. Two types of reports are sent: a log file a log file (containing commands run using ECS Exec inside the container) and a user-identity report (indicating the identity of the user who started the ECS Exec session).
 
 ## Set up Kolsi API token
 1. Log in to the https://app.kosli.com/, go to your profile, copy the `API Key` value.
-2. Put the Kosli API key value to the AWS SSM parameter (SecureString type). By default, Lambda Reporter will search for the `kosli_api_token` SSM parameter name, but it is also possible to set custom parameter name (use `kosli_api_token_ssm_parameter_name` variable).
+2. Store the Kosli API key value in an AWS SSM parameter (SecureString type). By default, the Lambda Reporter will search for the `kosli_api_token` SSM parameter name, but it is also possible to set custom parameter name (use `kosli_api_token_ssm_parameter_name` variable).
 
 ## Usage
+1. Ensure that ECS Exec logging is enabled for your ECS clusters and is [configured](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-exec.html) to save log files to an S3 bucket. Let's assume the ECS Exec log bucket name is `my-ecs-log-bucket`.
+2. Create an (Audit-trail)[https://docs.kosli.com/kosli_overview/what_is_audit_trail/] in your Kosli organisation, for example `staging-access` with the steps `command-logs` and `user-identity`.
+3. Deploy the evidence reporter module:
 ```
-module "lambda_reporter" {
-  source  = "kosli-dev/kosli-reporter/aws"
-  version = "0.3.0"
+module "evidence-reporter" {
+  source = "kosli-dev/ecs-evidence-reporter/aws"
 
-  name                       = "production_app"
-  kosli_environment_type     = "ecs"
-  kosli_cli_version          = "2.4.1"
-  kosli_environment_name     = "production"
-  kosli_org                  = "my-organisation"
-  reported_aws_resource_name = "app-cluster"
+  kosli_org_name = "kosli"
+  ecs_exec_log_bucket_name = "my-ecs-log-bucket"
+  kosli_audit_trail_name = "staging-access"
 }
 ```
-
-## Set custom IAM role
-Also it is possible to provide custom IAM role. You need to disable default role creation by setting the parameter `create_role` to `false` and providing custom role ARN with parameter `role_arn`:
-
-```
-module "lambda_reporter" {
-  source  = "kosli-dev/kosli-reporter/aws"
-  version = "0.3.0"
-
-  name                       = "staging_app"
-  kosli_environment_type     = "s3"
-  kosli_cli_version          = "2.4.1"
-  kosli_environment_name     = "staging"
-  kosli_org                  = "my-organisation"
-  reported_aws_resource_name = "my-s3-bucket"
-  role_arn                   = aws_iam_role.this.arn
-  create_role                = false
-}
-
-resource "aws_iam_role" "this" {
-  name               = "staging_reporter"
-  assume_role_policy = jsonencode({
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Sid": "",
-            "Effect": "Allow",
-            "Principal": {
-                "Service": "lambda.amazonaws.com"
-            },
-            "Action": "sts:AssumeRole"
-        }
-    ]
-  })
-}
-```
-
-## Kosli report command
-- The Kosli cli report command that is executed inside the Reporter Lambda function can be obtained by accessing `kosli_command` module output. 
-- Optional Kosli cli parameters can be added to the command with the `kosli_command_optional_parameters` module parameter.
-
-```
-module "lambda_reporter" {
-  source  = "kosli-dev/kosli-reporter/aws"
-  version = "0.3.0"
-
-  name                              = "staging_app"
-  kosli_environment_type            = "lambda"
-  kosli_cli_version                 = "2.4.1"
-  kosli_environment_name            = "staging"
-  kosli_org                         = "my-organisation"
-  reported_aws_resource_name        = "my-lambda-function" # use a comma-separated list of function names to report multiple functions
-}
-
-output "kosli_command" {
-  value = module.lambda_reporter.kosli_command
-}
-```
-
-Terraform output:
-```
-Outputs:
-
-kosli_command = "kosli snapshot lambda staging --function-names my-lambda-function"
-```
+4. Run the [ecs exec](https://awscli.amazonaws.com/v2/documentation/api/latest/reference/ecs/execute-command.html) command.
+5. After ECS exec session is closed, check the `staging-access` audit-trail in your Kosli organisation. A new workflow should appear with the name of the ECS Exec session ID (ecs-execute-command-"random-id"). The workflow should contain two evidence reports - `command-logs` and `user-identity`, both are dowloadable. 

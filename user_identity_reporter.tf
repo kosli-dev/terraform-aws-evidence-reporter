@@ -2,10 +2,10 @@ module "user_data_reporter_lambda" {
   source  = "terraform-aws-modules/lambda/aws"
   version = "4.18.0"
 
-  function_name = var.user_data_reporter_name
-  description   = "Send user data to the Kosli app"
-  handler       = "report-user-identity.handler"
-  runtime       = "provided"
+  function_name  = var.user_data_reporter_name
+  description    = "Send user data to the Kosli app"
+  handler        = "report-user-identity.handler"
+  runtime        = "provided"
   create_package = false
   publish        = true
 
@@ -15,10 +15,10 @@ module "user_data_reporter_lambda" {
     var.LAYER_VERSION_ARN_BASH_UTILITIES
   ]
 
-  timeout        = 30
-  memory_size    = 128
-  create_role    = true
-  role_name      = var.user_data_reporter_name
+  timeout     = 30
+  memory_size = 128
+  create_role = true
+  role_name   = var.user_data_reporter_name
 
   recreate_missing_package = var.recreate_missing_package
 
@@ -42,6 +42,7 @@ module "user_data_reporter_lambda" {
   tags = var.tags
 }
 
+# Eventbridge trigger
 resource "aws_cloudwatch_event_rule" "ecs_exec_session_started" {
   name        = "${var.user_data_reporter_name}-ecs-exec-session-started"
   description = "ECS exec session is started"
@@ -63,6 +64,7 @@ resource "aws_cloudwatch_event_rule" "ecs_exec_session_started" {
   tags = var.tags
 }
 
+# IAM
 resource "aws_cloudwatch_event_target" "ecs_exec_session_started" {
   arn       = module.user_data_reporter_lambda.lambda_function_arn
   rule      = aws_cloudwatch_event_rule.ecs_exec_session_started.name

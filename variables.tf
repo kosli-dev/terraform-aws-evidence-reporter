@@ -21,12 +21,12 @@ variable "kosli_host" {
 }
 
 variable "kosli_org_name" {
-  type    = string
+  type        = string
   description = "Kosli organisation name (the value for the cli --org parameter)."
 }
 
 variable "kosli_audit_trail_name" {
-  type = string
+  type        = string
   description = "The Kosli audit trail name."
 }
 
@@ -38,7 +38,8 @@ variable "kosli_api_token_ssm_parameter_name" {
 
 variable "kosli_cli_version" {
   type        = string
-  description = "The Kosli cli version, should be set in format 2.4.1"
+  description = "The Kosli cli version, should be set in format 2.5.0"
+  default     = "2.5.0"
 }
 
 variable "LAYER_VERSION_ARN_BASH_UTILITIES" {

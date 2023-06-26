@@ -5,10 +5,10 @@ module "log_uploader_lambda" {
   attach_policy_json = true
   policy_json        = data.aws_iam_policy_document.log_uploader_combined.json
 
-  function_name = var.log_uploader_name
-  description   = "Send evidence reports to the Kosli app"
-  handler       = "upload-log-file.handler"
-  runtime       = "provided"
+  function_name  = var.log_uploader_name
+  description    = "Send evidence reports to the Kosli app"
+  handler        = "upload-log-file.handler"
+  runtime        = "provided"
   create_package = false
   publish        = true
 
@@ -19,10 +19,10 @@ module "log_uploader_lambda" {
     var.LAYER_VERSION_ARN_BASH_UTILITIES
   ]
 
-  timeout        = 30
-  memory_size    = 512
-  create_role    = true
-  role_name      = var.log_uploader_name
+  timeout     = 30
+  memory_size = 512
+  create_role = true
+  role_name   = var.log_uploader_name
 
   recreate_missing_package = var.recreate_missing_package
 
