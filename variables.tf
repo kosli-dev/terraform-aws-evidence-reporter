@@ -44,13 +44,13 @@ variable "kosli_cli_version" {
 
 variable "LAYER_VERSION_ARN_BASH_UTILITIES" {
   description = "ARN of the Lambda layer version that contains: jq"
-  default     = "arn:aws:lambda:eu-central-1:772819027869:layer:bash-utilities:1"
+  default     = "arn:aws:lambda:eu-central-1:772819027869:layer:utilities:1"
   type        = string
 }
 
 variable "LAYER_VERSION_ARN_AWSCLI" {
   description = "ARN of the Lambda layer version that contains aws cli"
-  default     = "arn:aws:lambda:eu-central-1:772819027869:layer:awscli:20"
+  default     = "arn:aws:lambda:eu-central-1:772819027869:layer:aws-cli:1"
   type        = string
 }
 
