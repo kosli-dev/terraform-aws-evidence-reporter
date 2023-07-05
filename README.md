@@ -7,7 +7,7 @@ With Amazon [ECS Exec](https://aws.amazon.com/ru/blogs/containers/new-using-amaz
 
 ## Usage
 1. Ensure that ECS Exec logging is enabled for your ECS clusters and is [configured](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-exec.html) to save log files to an S3 bucket. Let's assume the ECS Exec log bucket name is `my-ecs-log-bucket`.
-2. Create an (Audit-trail)[https://docs.kosli.com/kosli_overview/what_is_audit_trail/] in your Kosli organisation, for example `staging-access` with the steps `command-logs` and `user-identity`.
+2. Create an [Audit-trail](https://docs.kosli.com/kosli_overview/what_is_audit_trail/) in your Kosli organisation, for example `staging-access` with the steps `command-logs` and `user-identity`.
 3. Deploy the evidence reporter module:
 ```
 module "evidence-reporter" {
