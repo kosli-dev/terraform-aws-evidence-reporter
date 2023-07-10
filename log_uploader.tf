@@ -2,9 +2,6 @@ module "log_uploader_lambda" {
   source  = "terraform-aws-modules/lambda/aws"
   version = "4.18.0"
 
-  attach_policy_json = true
-  policy_json        = data.aws_iam_policy_document.log_uploader_combined.json
-
   function_name  = var.log_uploader_name
   description    = "Send evidence reports to the Kosli app"
   handler        = "upload-log-file.handler"
@@ -18,6 +15,9 @@ module "log_uploader_lambda" {
     var.LAYER_VERSION_ARN_AWSCLI,
     var.LAYER_VERSION_ARN_BASH_UTILITIES
   ]
+
+  attach_policy_json = true
+  policy_json        = data.aws_iam_policy_document.log_uploader_combined.json
 
   timeout     = 30
   memory_size = 512

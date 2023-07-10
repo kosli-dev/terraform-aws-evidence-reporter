@@ -4,10 +4,10 @@ variable "log_uploader_name" {
   description = "The name of the AWS resources related to the log uploader lambda."
 }
 
-variable "user_data_reporter_name" {
+variable "identity_reporter_name" {
   type        = string
-  default     = "ecs-exec-user-data-reporter"
-  description = "The name of the AWS resources related to the user-data reporter lambda."
+  default     = "ecs-exec-identity-reporter"
+  description = "The name of the AWS resources related to the identity reporter lambda."
 }
 
 variable "ecs_exec_log_bucket_name" {

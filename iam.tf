@@ -14,6 +14,19 @@ data "aws_iam_policy_document" "s3_read" {
   }
 }
 
+data "aws_iam_policy_document" "ecs_read" {
+  statement {
+    sid    = "ECSRead"
+    effect = "Allow"
+    actions = [
+      "ecs:DescribeTasks"
+    ]
+    resources = [
+      "*"
+    ]
+  }
+}
+
 data "aws_iam_policy_document" "kms_read" {
   statement {
     sid = "KMS"

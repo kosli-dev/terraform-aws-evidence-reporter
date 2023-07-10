@@ -1,9 +1,9 @@
-module "user_data_reporter_lambda" {
+module "identity_reporter_lambda" {
   source  = "terraform-aws-modules/lambda/aws"
   version = "4.18.0"
 
-  function_name  = var.user_data_reporter_name
-  description    = "Send user data to the Kosli app"
+  function_name  = var.identity_reporter_name
+  description    = "Send identity evidence to the Kosli app"
   handler        = "report-user-identity.handler"
   runtime        = "provided"
   create_package = false
@@ -12,22 +12,27 @@ module "user_data_reporter_lambda" {
   local_existing_package = data.null_data_source.downloaded_package.outputs["filename"]
 
   layers = [
+    var.LAYER_VERSION_ARN_AWSCLI,
     var.LAYER_VERSION_ARN_BASH_UTILITIES
   ]
 
+  attach_policy_json = true
+  policy_json        = data.aws_iam_policy_document.ecs_read.json
+
   timeout     = 30
-  memory_size = 128
+  memory_size = 512
   create_role = true
-  role_name   = var.user_data_reporter_name
+  role_name   = var.identity_reporter_name
 
   recreate_missing_package = var.recreate_missing_package
 
   environment_variables = {
-    KOSLI_HOST             = var.kosli_host
-    KOSLI_API_TOKEN        = data.aws_ssm_parameter.kosli_api_token.value
-    KOSLI_ORG              = var.kosli_org_name
-    KOSLI_AUDIT_TRAIL_NAME = var.kosli_audit_trail_name
-    KOSLI_STEP_NAME        = "user-identity"
+    KOSLI_HOST                       = var.kosli_host
+    KOSLI_API_TOKEN                  = data.aws_ssm_parameter.kosli_api_token.value
+    KOSLI_ORG                        = var.kosli_org_name
+    KOSLI_AUDIT_TRAIL_NAME           = var.kosli_audit_trail_name
+    KOSLI_STEP_NAME_USER_IDENTITY    = "user-identity"
+    KOSLI_STEP_NAME_SERVICE_IDENTITY = "service-identity"
   }
 
   allowed_triggers = {
@@ -44,7 +49,7 @@ module "user_data_reporter_lambda" {
 
 # Eventbridge trigger
 resource "aws_cloudwatch_event_rule" "ecs_exec_session_started" {
-  name        = "${var.user_data_reporter_name}-ecs-exec-session-started"
+  name        = "${var.identity_reporter_name}-ecs-exec-session-started"
   description = "ECS exec session is started"
 
   event_pattern = jsonencode({
@@ -66,7 +71,7 @@ resource "aws_cloudwatch_event_rule" "ecs_exec_session_started" {
 
 # IAM
 resource "aws_cloudwatch_event_target" "ecs_exec_session_started" {
-  arn       = module.user_data_reporter_lambda.lambda_function_arn
+  arn       = module.identity_reporter_lambda.lambda_function_arn
   rule      = aws_cloudwatch_event_rule.ecs_exec_session_started.name
-  target_id = "${var.user_data_reporter_name}-ecs-exec-session-started"
+  target_id = "${var.identity_reporter_name}-ecs-exec-session-started"
 }
