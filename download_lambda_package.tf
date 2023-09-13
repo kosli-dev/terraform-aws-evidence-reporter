@@ -1,5 +1,5 @@
 locals {
-  package_url = "${var.reporter_releases_host}/kosli_evidence_reporter_v${var.kosli_cli_version}.zip"
+  package_url = "${var.reporter_releases_host}/evidence_reporter_v${var.kosli_cli_version}.zip"
   downloaded  = "downloaded_package_${md5(local.package_url)}.zip"
 }
 

@@ -38,8 +38,8 @@ variable "kosli_api_token_ssm_parameter_name" {
 
 variable "kosli_cli_version" {
   type        = string
-  description = "The Kosli cli version, should be set in format 2.5.0"
-  default     = "2.5.0"
+  description = "The Kosli cli version, should be set in format 2.6.6"
+  default     = "2.6.6"
 }
 
 variable "LAYER_VERSION_ARN_BASH_UTILITIES" {

@@ -1,30 +1,25 @@
 module "identity_reporter_lambda" {
   source  = "terraform-aws-modules/lambda/aws"
-  version = "4.18.0"
+  version = "6.0.0"
 
-  function_name  = var.identity_reporter_name
-  description    = "Send identity evidence to the Kosli app"
-  handler        = "report-user-identity.handler"
-  runtime        = "provided"
+  function_name = var.identity_reporter_name
+  description   = "Send identity evidence to the Kosli app"
+  handler       = "main_ir.lambda_handler"
+  runtime       = "python3.11"
+
   create_package = false
   publish        = true
 
-  local_existing_package = data.null_data_source.downloaded_package.outputs["filename"]
-
-  layers = [
-    var.LAYER_VERSION_ARN_AWSCLI,
-    var.LAYER_VERSION_ARN_BASH_UTILITIES
-  ]
+  local_existing_package   = data.null_data_source.downloaded_package.outputs["filename"]
+  recreate_missing_package = var.recreate_missing_package
 
   attach_policy_json = true
   policy_json        = data.aws_iam_policy_document.ecs_read.json
 
   timeout     = 30
-  memory_size = 512
+  memory_size = 128
   create_role = true
   role_name   = var.identity_reporter_name
-
-  recreate_missing_package = var.recreate_missing_package
 
   environment_variables = {
     KOSLI_HOST                       = var.kosli_host

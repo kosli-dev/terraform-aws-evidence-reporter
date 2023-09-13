@@ -1,26 +1,21 @@
 module "log_uploader_lambda" {
   source  = "terraform-aws-modules/lambda/aws"
-  version = "4.18.0"
+  version = "6.0.0"
 
   function_name  = var.log_uploader_name
   description    = "Send evidence reports to the Kosli app"
-  handler        = "upload-log-file.handler"
-  runtime        = "provided"
+  handler        = "main_lu.lambda_handler"
+  runtime        = "python3.11"
   create_package = false
   publish        = true
 
   local_existing_package = data.null_data_source.downloaded_package.outputs["filename"]
 
-  layers = [
-    var.LAYER_VERSION_ARN_AWSCLI,
-    var.LAYER_VERSION_ARN_BASH_UTILITIES
-  ]
-
   attach_policy_json = true
   policy_json        = data.aws_iam_policy_document.log_uploader_combined.json
 
   timeout     = 30
-  memory_size = 512
+  memory_size = 128
   create_role = true
   role_name   = var.log_uploader_name
 
