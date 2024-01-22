@@ -37,3 +37,13 @@ data "aws_iam_policy_document" "kms_read" {
     resources = ["*"]
   }
 }
+
+data "aws_iam_policy_document" "cloudtrail_read" {
+  statement {
+    sid = "Cloudtrail"
+    actions = [
+      "cloudtrail:LookupEvents"
+    ]
+    resources = ["*"]
+  }
+}

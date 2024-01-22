@@ -14,20 +14,20 @@ module "log_uploader_lambda" {
   attach_policy_json = true
   policy_json        = data.aws_iam_policy_document.log_uploader_combined.json
 
-  timeout     = 30
-  memory_size = 128
-  create_role = true
-  role_name   = var.log_uploader_name
+  maximum_retry_attempts = 0
+  timeout                = 300
+  memory_size            = 128
+  create_role            = true
+  role_name              = var.log_uploader_name
 
   recreate_missing_package = var.recreate_missing_package
 
   environment_variables = {
-    KOSLI_HOST             = var.kosli_host
-    KOSLI_API_TOKEN        = data.aws_ssm_parameter.kosli_api_token.value
-    KOSLI_ORG              = var.kosli_org_name
-    KOSLI_AUDIT_TRAIL_NAME = var.kosli_audit_trail_name
-    KOSLI_STEP_NAME        = "command-logs"
-    LOG_BUCKET_NAME        = var.ecs_exec_log_bucket_name
+    KOSLI_HOST      = var.kosli_host
+    KOSLI_API_TOKEN = data.aws_ssm_parameter.kosli_api_token.value
+    KOSLI_ORG       = var.kosli_org_name
+    KOSLI_FLOW_NAME = var.kosli_flow_name
+    LOG_BUCKET_NAME = var.ecs_exec_log_bucket_name
   }
 
   allowed_triggers = {
@@ -69,6 +69,7 @@ resource "aws_cloudwatch_event_target" "s3_object_created" {
 data "aws_iam_policy_document" "log_uploader_combined" {
   source_policy_documents = concat(
     [data.aws_iam_policy_document.kms_read.json],
-    [data.aws_iam_policy_document.s3_read.json]
+    [data.aws_iam_policy_document.s3_read.json],
+    [data.aws_iam_policy_document.cloudtrail_read.json]
   )
 }

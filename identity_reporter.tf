@@ -16,18 +16,17 @@ module "identity_reporter_lambda" {
   attach_policy_json = true
   policy_json        = data.aws_iam_policy_document.ecs_read.json
 
-  timeout     = 30
-  memory_size = 128
-  create_role = true
-  role_name   = var.identity_reporter_name
+  maximum_retry_attempts = 0
+  timeout                = 30
+  memory_size            = 128
+  create_role            = true
+  role_name              = var.identity_reporter_name
 
   environment_variables = {
-    KOSLI_HOST                       = var.kosli_host
-    KOSLI_API_TOKEN                  = data.aws_ssm_parameter.kosli_api_token.value
-    KOSLI_ORG                        = var.kosli_org_name
-    KOSLI_AUDIT_TRAIL_NAME           = var.kosli_audit_trail_name
-    KOSLI_STEP_NAME_USER_IDENTITY    = "user-identity"
-    KOSLI_STEP_NAME_SERVICE_IDENTITY = "service-identity"
+    KOSLI_HOST      = var.kosli_host
+    KOSLI_API_TOKEN = data.aws_ssm_parameter.kosli_api_token.value
+    KOSLI_ORG       = var.kosli_org_name
+    KOSLI_FLOW_NAME = var.kosli_flow_name
   }
 
   allowed_triggers = {

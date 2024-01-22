@@ -25,9 +25,9 @@ variable "kosli_org_name" {
   description = "Kosli organisation name (the value for the cli --org parameter)."
 }
 
-variable "kosli_audit_trail_name" {
+variable "kosli_flow_name" {
   type        = string
-  description = "The Kosli audit trail name."
+  description = "Kosli flow name."
 }
 
 variable "kosli_api_token_ssm_parameter_name" {
@@ -40,18 +40,6 @@ variable "kosli_cli_version" {
   type        = string
   description = "The Kosli cli version, should be set in format 2.6.6"
   default     = "2.6.6"
-}
-
-variable "LAYER_VERSION_ARN_BASH_UTILITIES" {
-  description = "ARN of the Lambda layer version that contains: jq"
-  default     = "arn:aws:lambda:eu-central-1:772819027869:layer:utilities:1"
-  type        = string
-}
-
-variable "LAYER_VERSION_ARN_AWSCLI" {
-  description = "ARN of the Lambda layer version that contains aws cli"
-  default     = "arn:aws:lambda:eu-central-1:772819027869:layer:aws-cli:1"
-  type        = string
 }
 
 variable "recreate_missing_package" {
