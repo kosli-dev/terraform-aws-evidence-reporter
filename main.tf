@@ -1,6 +1,6 @@
 module "evidence_reporter" {
   count = var.create_evidence_reporter ? 1 : 0
-  source = "./evidence-reporter"
+  source = "./modules/evidence-reporter"
   identity_reporter_name = var.identity_reporter_name
   log_uploader_name = var.log_uploader_name
   kosli_host = var.kosli_host
@@ -14,5 +14,5 @@ module "evidence_reporter" {
 
 module "session_reporter" {
   count = var.create_session_reporter ? 1 : 0
-  source = "./session-reporter"
+  source = "./modules/session-reporter"
 }
