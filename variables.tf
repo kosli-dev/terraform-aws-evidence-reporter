@@ -1,15 +1,3 @@
-variable "create_evidence_reporter" {
-  type        = string
-  default     = true
-  description = "Whether to create Evidence-reporter resources"
-}
-
-variable "create_session_reporter" {
-  type        = string
-  default     = false
-  description = "Whether to create Session-reporter resources"
-}
-
 variable "log_uploader_name" {
   type        = string
   default     = "ecs-exec-log-uploader"
