@@ -4,7 +4,7 @@ module "identity_reporter_lambda" {
 
   function_name = var.identity_reporter_name
   description   = "Send identity evidence to the Kosli app"
-  handler       = "main_ir.lambda_handler"
+  handler       = "identity_reporter.lambda_handler"
   runtime       = "python3.11"
 
   create_package = false

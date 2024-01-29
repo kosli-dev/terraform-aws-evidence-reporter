@@ -4,7 +4,7 @@ module "log_uploader_lambda" {
 
   function_name  = var.log_uploader_name
   description    = "Send evidence reports to the Kosli app"
-  handler        = "main_lu.lambda_handler"
+  handler        = "log_uploader.lambda_handler"
   runtime        = "python3.11"
   create_package = false
   publish        = true
