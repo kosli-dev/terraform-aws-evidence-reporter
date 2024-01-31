@@ -27,7 +27,7 @@ jobs:
     - name: Upload Evidence Reporter lambda package
       id: upload-package
       env:
-        TAG: ${{ github.event.client_payload.tag }}
+        TAG: ${{ github.event.client_payload.kosli_cli_tag }}
       run: |
         KOSLI_CLI_VERSION="${TAG:1}"
         echo "kosli_cli_version=$KOSLI_CLI_VERSION" >> $GITHUB_OUTPUT
