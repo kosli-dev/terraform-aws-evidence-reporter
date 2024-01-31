@@ -35,11 +35,10 @@ def lambda_handler(event, context):
             json.dump({"ecs_exec_role_arn": ecs_exec_user_identity}, user_identity_file)
 
         print("Reporting ECS exec user identity to the Kosli...", file=sys.stderr)
-        subprocess.run(['./kosli', 'attest', 'generic',
+        subprocess.run(['./kosli', 'attest', 'generic', '/tmp/user-identity.json',
                         f'--flow={kosli_flow_name}', 
                         f'--trail={kosli_trail_name}',
                         '--name=user-identity',
-                        '--evidence-paths=/tmp/user-identity.json',
                         '--user-data=/tmp/user-identity.json'])
 
         # Get and report ECS exec session service identity
@@ -52,11 +51,10 @@ def lambda_handler(event, context):
             json.dump({"ecs_exec_service_identity": ecs_exec_task_group}, service_identity_file)
 
         print("Reporting ECS exec service identity to the Kosli...", file=sys.stderr)
-        subprocess.run(['./kosli', 'attest', 'generic',
+        subprocess.run(['./kosli', 'attest', 'generic', '/tmp/service-identity.json',
                         f'--flow={kosli_flow_name}', 
                         f'--trail={kosli_trail_name}',
                         '--name=service-identity',
-                        '--evidence-paths=/tmp/service-identity.json',
                         '--user-data=/tmp/service-identity.json'])
 
         return {

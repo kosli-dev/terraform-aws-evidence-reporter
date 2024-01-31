@@ -64,11 +64,10 @@ def lambda_handler(event, context):
 
         # Upload the log file to the Kosli
         print('Uploading ECS exec log file to the Kosli...', file=sys.stderr)
-        subprocess.run(['./kosli', 'attest', 'generic', 
+        subprocess.run(['./kosli', 'attest', 'generic', local_log_file_path,
                          f'--flow={kosli_flow_name}', 
                          f'--trail={kosli_trail_name}',
-                         '--name=command-logs',
-                         f'--evidence-paths={local_log_file_path}'])
+                         '--name=command-logs'])
 
         return {
             'statusCode': 200,
