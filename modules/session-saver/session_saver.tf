@@ -9,9 +9,7 @@ module "session_saver_lambda" {
 
   create_package = true
   publish        = true
-#   source_path    = "../terraform-aws-evidence-reporter/deployment"
-  source_path    = "../terraform-aws-evidence-reporter/deployment"
-#   local_existing_package   = data.null_data_source.downloaded_package.outputs["filename"]
+  source_path    = "../deployment"
   recreate_missing_package = var.recreate_missing_package
 
   attach_policy_json = true
