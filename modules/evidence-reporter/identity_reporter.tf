@@ -63,7 +63,6 @@ resource "aws_cloudwatch_event_rule" "ecs_exec_session_started" {
   tags = var.tags
 }
 
-# IAM
 resource "aws_cloudwatch_event_target" "ecs_exec_session_started" {
   arn       = module.identity_reporter_lambda.lambda_function_arn
   rule      = aws_cloudwatch_event_rule.ecs_exec_session_started.name

@@ -51,7 +51,7 @@ def lambda_handler(event, context):
         local_log_file_path = f'/tmp/{ecs_exec_session_id}.log'
         s3_client.download_file(log_bucket_name, s3_object_key, local_log_file_path)
 
-        print(f'Getting principal id of the current ECS exec session...')
+        print('Getting principal id of the current ECS exec session...')
         ecs_exec_principal_id = get_ecs_exec_event_principal_id(ecs_exec_session_id)
         kosli_trail_name = prepare_kosli_trail_name(ecs_exec_principal_id)
 
