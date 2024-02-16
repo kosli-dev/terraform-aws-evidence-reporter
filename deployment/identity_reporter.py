@@ -3,10 +3,15 @@ import json
 import subprocess
 import sys
 import os
-from utility import prepare_kosli_trail_name
+from utility import dynamodb_find_session_events
+from utility import dynamodb_get_session_timestamp
 
 
 kosli_flow_name = os.environ.get("KOSLI_FLOW_NAME", "")
+aws_account_id = os.environ.get("AWS_ACCOUNT_ID", "")
+aws_region_sso = os.environ.get("AWS_REGION_SSO", "")
+dynamodb_role_arn = os.environ.get("DYNAMODB_ROLE_ARN", "")
+dynamodb_table_name = os.environ.get("DYNAMODB_TABLE_NAME", "")
 
 
 def describe_ecs_task(cluster, task_arn):
@@ -20,9 +25,16 @@ def lambda_handler(event, context):
         print(f"ECS_EXEC_SESSION_ID is {ecs_exec_session_id}", file=sys.stderr)
 
         ecs_exec_principal_id = event['detail']['userIdentity']['principalId']
-        kosli_trail_name = prepare_kosli_trail_name(ecs_exec_principal_id)
+        ecs_exec_user_name = ecs_exec_principal_id.split(":", 1)[1]
+
+        sso_session_timestamp = dynamodb_get_session_timestamp(ecs_exec_user_name,
+                                                               dynamodb_role_arn,
+                                                               dynamodb_table_name,
+                                                               aws_account_id,
+                                                               aws_region_sso)
 
         # Create Kosli trail (if it is already exists, it will just add a report event to the existing trail)
+        kosli_trail_name = str(sso_session_timestamp) + '-' + ecs_exec_user_name.split("@")[0]
         print(f'Creating Kosli trail {ecs_exec_principal_id} within {kosli_flow_name} flow.')
     
         kosli_client = subprocess.check_output(['./kosli', 'begin', 'trail', kosli_trail_name,
@@ -35,7 +47,8 @@ def lambda_handler(event, context):
             json.dump({"ecs_exec_role_arn": ecs_exec_user_identity}, user_identity_file)
 
         print("Reporting ECS exec user identity to the Kosli...", file=sys.stderr)
-        subprocess.run(['./kosli', 'attest', 'generic', '/tmp/user-identity.json',
+        subprocess.run(['./kosli', 'attest', 'generic', 
+                        f'--attachments=/tmp/user-identity.json',
                         f'--flow={kosli_flow_name}', 
                         f'--trail={kosli_trail_name}',
                         '--name=user-identity',
@@ -51,7 +64,8 @@ def lambda_handler(event, context):
             json.dump({"ecs_exec_service_identity": ecs_exec_task_group}, service_identity_file)
 
         print("Reporting ECS exec service identity to the Kosli...", file=sys.stderr)
-        subprocess.run(['./kosli', 'attest', 'generic', '/tmp/service-identity.json',
+        subprocess.run(['./kosli', 'attest', 'generic',
+                        f'--attachments=/tmp/service-identity.json',
                         f'--flow={kosli_flow_name}', 
                         f'--trail={kosli_trail_name}',
                         '--name=service-identity',

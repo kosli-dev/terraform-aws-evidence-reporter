@@ -47,3 +47,13 @@ data "aws_iam_policy_document" "cloudtrail_read" {
     resources = ["*"]
   }
 }
+
+data "aws_iam_policy_document" "assume_role_sso" {
+  statement {
+    sid = "assumeRoleSSO"
+    actions = [
+      "sts:AssumeRole"
+    ]
+    resources = [var.dynamodb_role_arn]
+  }
+}

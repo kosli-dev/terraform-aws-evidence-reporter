@@ -23,11 +23,15 @@ module "log_uploader_lambda" {
   recreate_missing_package = var.recreate_missing_package
 
   environment_variables = {
-    KOSLI_HOST      = var.kosli_host
-    KOSLI_API_TOKEN = data.aws_ssm_parameter.kosli_api_token.value
-    KOSLI_ORG       = var.kosli_org_name
-    KOSLI_FLOW_NAME = var.kosli_flow_name
-    LOG_BUCKET_NAME = var.ecs_exec_log_bucket_name
+    AWS_ACCOUNT_ID      = data.aws_caller_identity.current.account_id
+    AWS_REGION_SSO      = var.aws_region_sso
+    KOSLI_HOST          = var.kosli_host
+    KOSLI_API_TOKEN     = data.aws_ssm_parameter.kosli_api_token.value
+    KOSLI_ORG           = var.kosli_org_name
+    KOSLI_FLOW_NAME     = var.kosli_flow_name
+    LOG_BUCKET_NAME     = var.ecs_exec_log_bucket_name
+    DYNAMODB_ROLE_ARN   = var.dynamodb_role_arn
+    DYNAMODB_TABLE_NAME = var.dynamodb_table_name
   }
 
   allowed_triggers = {
@@ -70,6 +74,7 @@ data "aws_iam_policy_document" "log_uploader_combined" {
   source_policy_documents = concat(
     [data.aws_iam_policy_document.kms_read.json],
     [data.aws_iam_policy_document.s3_read.json],
-    [data.aws_iam_policy_document.cloudtrail_read.json]
+    [data.aws_iam_policy_document.cloudtrail_read.json],
+    [data.aws_iam_policy_document.assume_role_sso.json]
   )
 }

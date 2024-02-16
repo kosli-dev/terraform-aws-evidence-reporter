@@ -4,6 +4,12 @@ variable "session_saver_name" {
   description = "The name of the AWS resources related to the SSO session lambda."
 }
 
+variable "dynamodb_table_name" {
+  type        = string
+  default     = "sso_elevator_session_events"
+  description = "The name of the SSO events DynamoDB table"
+}
+
 variable "sso_elevator_bucket_name" {
   type        = string
   description = "The name of S3 bucket where SSO elevator audit logs are stored."
@@ -26,15 +32,3 @@ variable "cloudwatch_logs_retention_in_days" {
   default     = 7
   description = "The retention period of reporter logs (days)."
 }
-
-# variable "kosli_cli_version" {
-#   type        = string
-#   description = "The Kosli cli version, should be set in format 2.7.8"
-#   default     = "2.7.8"
-# }
-
-# variable "reporter_releases_host" {
-#   type        = string
-#   default     = "https://reporter-releases.kosli.com"
-#   description = "Where to download the Reporter Lambda package."
-# }

@@ -38,8 +38,8 @@ variable "kosli_api_token_ssm_parameter_name" {
 
 variable "kosli_cli_version" {
   type        = string
-  description = "The Kosli cli version, should be set in format 2.6.6"
-  default     = "2.6.6"
+  description = "The Kosli cli version, should be set in format 2.7.8"
+  default     = "2.7.8"
 }
 
 variable "recreate_missing_package" {
@@ -64,4 +64,21 @@ variable "reporter_releases_host" {
   type        = string
   default     = "https://reporter-releases.kosli.com"
   description = "Where to download the Reporter Lambda package."
+}
+
+variable "aws_region_sso" {
+  type        = string
+  default     = "eu-north-1"
+  description = "SSO-elevator region"
+}
+
+variable "dynamodb_role_arn" {
+  type        = string
+  description = "ARN of the role to assume in the SSO aws account"
+}
+
+variable "dynamodb_table_name" {
+  type        = string
+  default     = "sso_elevator_session_events"
+  description = "The name of the SSO events DynamoDB table"
 }

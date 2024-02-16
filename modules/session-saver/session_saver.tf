@@ -7,9 +7,9 @@ module "session_saver_lambda" {
   handler       = "session_saver.lambda_handler"
   runtime       = "python3.11"
 
-  create_package = true
-  publish        = true
-  source_path    = "../deployment"
+  create_package           = true
+  publish                  = true
+  source_path              = "../deployment"
   recreate_missing_package = var.recreate_missing_package
 
   attach_policy_json = true
@@ -22,8 +22,8 @@ module "session_saver_lambda" {
   role_name              = var.session_saver_name
 
   environment_variables = {
-    SSO_ELEVATOR_AUDIT_BUCKET_NAME      = var.sso_elevator_bucket_name
-    DYNAMODB_TABLE_NAME = aws_dynamodb_table.this.id
+    SSO_ELEVATOR_AUDIT_BUCKET_NAME = var.sso_elevator_bucket_name
+    DYNAMODB_TABLE_NAME            = aws_dynamodb_table.this.id
   }
 
   allowed_triggers = {
