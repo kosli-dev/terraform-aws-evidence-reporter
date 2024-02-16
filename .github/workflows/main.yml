@@ -46,4 +46,4 @@ jobs:
           token: ${{ secrets.KOSLI_REPORTER_REPO_ACCESS_TOKEN }}
           repository: kosli-dev/terraform-evidence-reporter
           event-type: deploy-evidence-reporter
-          client-payload: '{"kosli_cli_version": "${{ needs.upload-evidence-reporter-package.outputs.kosli_cli_version }}"}'
+          client-payload: '{"kosli_cli_version": "${{ needs.upload-package.outputs.kosli_cli_version }}"}'
