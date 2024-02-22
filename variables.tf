@@ -30,18 +30,6 @@ variable "kosli_flow_name" {
   description = "Kosli flow name."
 }
 
-variable "kosli_api_token_ssm_parameter_name" {
-  description = "The name of the kosli_api_token SSM parameter name"
-  type        = string
-  default     = "kosli_api_token"
-}
-
-variable "kosli_cli_version" {
-  type        = string
-  description = "The Kosli cli version, should be set in format 2.6.6"
-  default     = "2.6.6"
-}
-
 variable "recreate_missing_package" {
   type        = bool
   default     = true
@@ -58,10 +46,4 @@ variable "cloudwatch_logs_retention_in_days" {
   type        = number
   default     = 7
   description = "The retention period of reporter logs (days)."
-}
-
-variable "reporter_releases_host" {
-  type        = string
-  default     = "https://reporter-releases.kosli.com"
-  description = "Where to download the Reporter Lambda package."
 }
