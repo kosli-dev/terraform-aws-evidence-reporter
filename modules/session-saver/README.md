@@ -1,0 +1,1 @@
+This folder contains the Session-saver Terraform module. It is supposed to be deployed to the SSO AWS account, where SSO-elevator resides. It captures access grant and revoke events and manages these event records accordingly in the DynamoDB.
