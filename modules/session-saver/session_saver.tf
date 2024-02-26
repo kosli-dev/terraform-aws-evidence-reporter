@@ -9,7 +9,7 @@ module "session_saver_lambda" {
 
   create_package           = true
   publish                  = true
-  source_path              = "../deployment"
+  source_path              = "../../deployment"
   recreate_missing_package = var.recreate_missing_package
 
   attach_policy_json = true
