@@ -16,7 +16,7 @@ def dynamodb_find_session_events(table, requester_email, account_id):
 
     return response['Items']
 
-def dynamodb_delete_session_events(table, events):
+def dynamodb_delete_session_events(table_name, events):
     if events:
         print("Matching events found. Deleting...")
 

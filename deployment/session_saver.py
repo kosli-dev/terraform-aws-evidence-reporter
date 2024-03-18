@@ -50,7 +50,7 @@ def lambda_handler(event, context):
             sso_session_events = dynamodb_find_session_events(dynamodb_table, 
                                                               session_event_requester_email, 
                                                               session_event_account_id)
-            dynamodb_delete_session_events(dynamodb_table, 
+            dynamodb_delete_session_events(dynamodb_table_name, 
                                            sso_session_events)
 
         return {
