@@ -4,7 +4,7 @@ import subprocess
 import sys
 import os
 from utility import dynamodb_find_session_events
-from utility import dynamodb_get_session_timestamp
+from utility import dynamodb_get_session_event
 
 
 kosli_flow_name = os.environ.get("KOSLI_FLOW_NAME", "")
@@ -27,11 +27,12 @@ def lambda_handler(event, context):
         ecs_exec_principal_id = event['detail']['userIdentity']['principalId']
         ecs_exec_user_name = ecs_exec_principal_id.split(":", 1)[1]
 
-        sso_session_timestamp = dynamodb_get_session_timestamp(ecs_exec_user_name,
-                                                               dynamodb_role_arn,
-                                                               dynamodb_table_name,
-                                                               aws_account_id,
-                                                               aws_region_sso)
+        sso_session_event = dynamodb_get_session_event(ecs_exec_user_name,
+                                                           dynamodb_role_arn,
+                                                           dynamodb_table_name,
+                                                           aws_account_id,
+                                                           aws_region_sso)
+        sso_session_timestamp = int(sso_session_event['timestamp'])
 
         # Create Kosli trail (if it is already exists, it will just add a report event to the existing trail)
         kosli_trail_name = str(sso_session_timestamp) + '-' + ecs_exec_user_name.split("@")[0]
@@ -55,13 +56,17 @@ def lambda_handler(event, context):
                         '--user-data=/tmp/user-identity.json'])
 
         # Get and report ECS exec session service identity
-        ecs_exec_task_arn = event['detail']['responseElements']['taskArn']
-        ecs_exec_cluster = event['detail']['requestParameters']['cluster']
-        ecs_task_info = describe_ecs_task(cluster=ecs_exec_cluster, task_arn=ecs_exec_task_arn)
-        ecs_exec_task_group = ecs_task_info['tasks'][0]['group']
+        json_identity_data = {
+            'requester_email': sso_session_event['requester_email'],
+            'approver_email': sso_session_event['approver_email'],
+            'role_name': sso_session_event['role_name'],
+            'permission_duration': sso_session_event['permission_duration'],
+            'account_id': sso_session_event['account_id'],
+            'reason': sso_session_event['reason']
+        }
 
         with open('/tmp/service-identity.json', 'w') as service_identity_file:
-            json.dump({"ecs_exec_service_identity": ecs_exec_task_group}, service_identity_file)
+            json.dump(json_identity_data, service_identity_file)
 
         print("Reporting ECS exec service identity to the Kosli...", file=sys.stderr)
         subprocess.run(['./kosli', 'attest', 'generic',

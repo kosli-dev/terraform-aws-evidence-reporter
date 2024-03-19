@@ -35,7 +35,7 @@ def dynamodb_delete_session_events(table_name, events):
               'requester_email', "with value:", session_event_requester_email,
               "and", 'account_id', "with value:", session_event_account_id)
 
-def dynamodb_get_session_timestamp(ecs_exec_user_name, dynamodb_role_arn, dynamodb_table_name, aws_account_id, aws_region_sso):
+def dynamodb_get_session_event(ecs_exec_user_name, dynamodb_role_arn, dynamodb_table_name, aws_account_id, aws_region_sso):
     # Get SSO session parameters from
     sts_client = boto3.client('sts')
     sts_session = sts_client.assume_role(RoleArn=dynamodb_role_arn, RoleSessionName=f'reporter-dynamodb-session-{aws_account_id}')
@@ -53,6 +53,5 @@ def dynamodb_get_session_timestamp(ecs_exec_user_name, dynamodb_role_arn, dynamo
     sso_session_event = dynamodb_find_session_events(dynamodb_table, 
                                                      ecs_exec_user_name, 
                                                      aws_account_id).pop()
-    sso_session_timestamp = int(sso_session_event['timestamp'])
     
-    return sso_session_timestamp
+    return sso_session_event

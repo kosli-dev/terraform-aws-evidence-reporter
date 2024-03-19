@@ -6,7 +6,7 @@ import boto3
 import time
 import sys
 from utility import dynamodb_find_session_events
-from utility import dynamodb_get_session_timestamp
+from utility import dynamodb_get_session_event
 
 
 aws_account_id = os.environ.get("AWS_ACCOUNT_ID", "")
@@ -60,11 +60,13 @@ def lambda_handler(event, context):
         ecs_exec_principal_id = get_ecs_exec_event_principal_id(ecs_exec_session_id) 
         ecs_exec_user_name = ecs_exec_principal_id.split(":", 1)[1]
 
-        sso_session_timestamp = dynamodb_get_session_timestamp(ecs_exec_user_name,
-                                                               dynamodb_role_arn,
-                                                               dynamodb_table_name,
-                                                               aws_account_id,
-                                                               aws_region_sso)
+        
+        sso_session_event = dynamodb_get_session_event(ecs_exec_user_name,
+                                                           dynamodb_role_arn,
+                                                           dynamodb_table_name,
+                                                           aws_account_id,
+                                                           aws_region_sso)
+        sso_session_timestamp = int(sso_session_event['timestamp'])
 
         # Create Kosli trail (if it is already exists, it will just add a report event to the existing trail)
         kosli_trail_name = str(sso_session_timestamp) + '-' + ecs_exec_user_name.split("@")[0]
