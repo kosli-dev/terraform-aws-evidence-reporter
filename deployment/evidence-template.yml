@@ -7,3 +7,5 @@ trail:
     type: generic
   - name: service-identity
     type: generic
+  - name: sso-session-data
+    type: generic

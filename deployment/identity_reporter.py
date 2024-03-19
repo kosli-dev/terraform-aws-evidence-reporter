@@ -42,7 +42,7 @@ def lambda_handler(event, context):
                                                 '--template-file=evidence-template.yml',
                                                 f'--flow={kosli_flow_name}'])
 
-        # Get and report ECS exec session user identity (ARN of the IAM role that initiated the session)
+        # Get and report ECS exec session user identity
         ecs_exec_user_identity = event['detail']['userIdentity']['arn']
         with open('/tmp/user-identity.json', 'w') as user_identity_file:
             json.dump({"ecs_exec_role_arn": ecs_exec_user_identity}, user_identity_file)
@@ -56,17 +56,13 @@ def lambda_handler(event, context):
                         '--user-data=/tmp/user-identity.json'])
 
         # Get and report ECS exec session service identity
-        json_identity_data = {
-            'requester_email': sso_session_event['requester_email'],
-            'approver_email': sso_session_event['approver_email'],
-            'role_name': sso_session_event['role_name'],
-            'permission_duration': sso_session_event['permission_duration'],
-            'account_id': sso_session_event['account_id'],
-            'reason': sso_session_event['reason']
-        }
+        ecs_exec_task_arn = event['detail']['responseElements']['taskArn']
+        ecs_exec_cluster = event['detail']['requestParameters']['cluster']
+        ecs_task_info = describe_ecs_task(cluster=ecs_exec_cluster, task_arn=ecs_exec_task_arn)
+        ecs_exec_task_group = ecs_task_info['tasks'][0]['group']
 
         with open('/tmp/service-identity.json', 'w') as service_identity_file:
-            json.dump(json_identity_data, service_identity_file)
+            json.dump({"ecs_exec_service_identity": ecs_exec_task_group}, service_identity_file)
 
         print("Reporting ECS exec service identity to the Kosli...", file=sys.stderr)
         subprocess.run(['./kosli', 'attest', 'generic',
@@ -75,6 +71,27 @@ def lambda_handler(event, context):
                         f'--trail={kosli_trail_name}',
                         '--name=service-identity',
                         '--user-data=/tmp/service-identity.json'])
+
+        # Get and report AWS SSO session data
+        json_sso_session_data = {
+            'requester_email': sso_session_event['requester_email'],
+            'approver_email': sso_session_event['approver_email'],
+            'role_name': sso_session_event['role_name'],
+            'permission_duration': sso_session_event['permission_duration'],
+            'account_id': sso_session_event['account_id'],
+            'reason': sso_session_event['reason']
+        }
+
+        with open('/tmp/sso-session-data.json', 'w') as sso_session_data_file:
+            json.dump(json_sso_session_data, sso_session_data_file)
+
+        print("Reporting SSO session data to the Kosli...", file=sys.stderr)
+        subprocess.run(['./kosli', 'attest', 'generic', 
+                        f'--attachments=/tmp/sso-session-data.json',
+                        f'--flow={kosli_flow_name}', 
+                        f'--trail={kosli_trail_name}',
+                        '--name=sso-session-data',
+                        '--user-data=/tmp/sso-session-data.json'])
 
         return {
             'statusCode': 200,
