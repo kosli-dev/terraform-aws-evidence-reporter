@@ -38,3 +38,34 @@ data "aws_iam_policy_document" "combined" {
     [data.aws_iam_policy_document.dynamodb_write.json]
   )
 }
+
+# Role is used by identity-reporter and log uploader to access DynamoDB
+resource "aws_iam_role" "dynamodb_org_full_access" {
+  name = "dynamodb_org_full_access"
+
+  assume_role_policy = jsonencode({
+    "Version" : "2012-10-17",
+    "Statement" : [
+      {
+        "Effect" : "Allow",
+        "Principal" : {
+          "AWS" : "*"
+        },
+        "Action" : "sts:AssumeRole",
+        "Condition" : {
+          "StringEquals" : {
+            "aws:PrincipalOrgID" : "${data.aws_organizations_organization.org.id}"
+          }
+        }
+      }
+    ]
+  })
+
+  tags = var.tags
+}
+
+resource "aws_iam_policy_attachment" "dynamodb_org_full_access" {
+  name       = "OrganizationDynamoDBFullAccess"
+  roles      = [aws_iam_role.dynamodb_org_full_access.name]
+  policy_arn = "arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess"
+}
