@@ -57,3 +57,34 @@ data "aws_iam_policy_document" "assume_role_sso" {
     resources = [var.dynamodb_role_arn]
   }
 }
+
+data "aws_iam_policy_document" "logs" {
+  statement {
+    sid = "Logs"
+    actions = [
+      "logs:PutLogEvents",
+      "logs:CreateLogStream",
+      "logs:CreateLogGroup"
+    ]
+    resources = ["*"]
+  }
+}
+
+data "aws_iam_policy_document" "lambda_assume" {
+  statement {
+    sid    = "Assume"
+    effect = "Allow"
+    actions = [
+      "sts:AssumeRole"
+    ]
+    principals {
+      type        = "Service"
+      identifiers = ["lambda.amazonaws.com"]
+    }
+    condition {
+      test     = "StringEquals"
+      variable = "aws:SourceAccount"
+      values   = [data.aws_caller_identity.current.account_id]
+    }
+  }
+}

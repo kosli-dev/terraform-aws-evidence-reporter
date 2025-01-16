@@ -11,14 +11,12 @@ module "log_uploader_lambda" {
 
   local_existing_package = data.null_data_source.downloaded_package.outputs["filename"]
 
-  attach_policy_json = true
-  policy_json        = data.aws_iam_policy_document.log_uploader_combined.json
+  create_role = false
+  lambda_role = aws_iam_role.log_uploader.arn
 
   maximum_retry_attempts = 0
   timeout                = 300
   memory_size            = 128
-  create_role            = true
-  role_name              = var.log_uploader_name
 
   recreate_missing_package = var.recreate_missing_package
 
@@ -75,6 +73,25 @@ data "aws_iam_policy_document" "log_uploader_combined" {
     [data.aws_iam_policy_document.kms_read.json],
     [data.aws_iam_policy_document.s3_read.json],
     [data.aws_iam_policy_document.cloudtrail_read.json],
+    [data.aws_iam_policy_document.logs.json],
     [data.aws_iam_policy_document.assume_role_sso.json]
   )
+}
+
+resource "aws_iam_role" "log_uploader" {
+  name               = var.log_uploader_name
+  description        = "Role for the log_uploader Lambda"
+  assume_role_policy = data.aws_iam_policy_document.lambda_assume.json
+  tags               = var.tags
+}
+
+resource "aws_iam_policy" "log_uploader" {
+  name        = var.log_uploader_name
+  description = "Policy for the log_uploader Lambda"
+  policy      = data.aws_iam_policy_document.log_uploader_combined.json
+}
+
+resource "aws_iam_role_policy_attachment" "log_uploader" {
+  role       = aws_iam_role.log_uploader.name
+  policy_arn = aws_iam_policy.log_uploader.arn
 }

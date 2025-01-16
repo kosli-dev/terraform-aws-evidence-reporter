@@ -13,14 +13,12 @@ module "identity_reporter_lambda" {
   local_existing_package   = data.null_data_source.downloaded_package.outputs["filename"]
   recreate_missing_package = var.recreate_missing_package
 
-  attach_policy_json = true
-  policy_json        = data.aws_iam_policy_document.identity_reporter_combined.json
+  create_role = false
+  lambda_role = aws_iam_role.identity_reporter.arn
 
   maximum_retry_attempts = 0
   timeout                = 30
   memory_size            = 128
-  create_role            = true
-  role_name              = var.identity_reporter_name
 
   environment_variables = {
     AWS_ACCOUNT_ID      = data.aws_caller_identity.current.account_id
@@ -77,6 +75,25 @@ resource "aws_cloudwatch_event_target" "ecs_exec_session_started" {
 data "aws_iam_policy_document" "identity_reporter_combined" {
   source_policy_documents = concat(
     [data.aws_iam_policy_document.ecs_read.json],
+    [data.aws_iam_policy_document.logs.json],
     [data.aws_iam_policy_document.assume_role_sso.json]
   )
+}
+
+resource "aws_iam_role" "identity_reporter" {
+  name               = var.identity_reporter_name
+  description        = "Role for the identity_reporter Lambda"
+  assume_role_policy = data.aws_iam_policy_document.lambda_assume.json
+  tags               = var.tags
+}
+
+resource "aws_iam_policy" "identity_reporter" {
+  name        = var.identity_reporter_name
+  description = "Policy for the identity_reporter Lambda"
+  policy      = data.aws_iam_policy_document.identity_reporter_combined.json
+}
+
+resource "aws_iam_role_policy_attachment" "identity_reporter" {
+  role       = aws_iam_role.identity_reporter.name
+  policy_arn = aws_iam_policy.identity_reporter.arn
 }
