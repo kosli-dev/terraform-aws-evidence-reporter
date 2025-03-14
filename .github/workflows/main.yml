@@ -7,7 +7,7 @@ on:
 
 jobs:
   upload-package:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     outputs:
       kosli_cli_version: ${{ steps.upload-package.outputs.kosli_cli_version }}
     permissions:
@@ -37,7 +37,7 @@ jobs:
         aws s3 cp evidence_reporter_${KOSLI_CLI_VERSION}.zip s3://${{ secrets.KOSLI_REPORTER_SOURCES_S3_NAME }}/evidence_reporter_${TAG}.zip
 
   deploy-evidence-reporters:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     needs: [upload-package]
     steps:
       - name: Repository Dispatch
