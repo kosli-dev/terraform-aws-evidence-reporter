@@ -9,3 +9,16 @@ builds/*
 .terraform.lock.hcl
 *plan.json
 **/.terraform.lock.hcl
+
+# Python temporary and cache files
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+ENV/
+.venv/
+.pytest_cache/
+# End Python temp stuff
