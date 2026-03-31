@@ -6,7 +6,7 @@ This repository contains a set of modules in the [modules folder](https://github
 This module assumes that you are using [SSO-elevator](https://github.com/fivexl/terraform-aws-sso-elevator) - a solution for granting temporary SSO access to AWS accounts. Kosli Evidence Reporter groups the evidence into separate trails by access grant. For example, if a user gets temporary AWS access through SSO-elevator, all the ECS exec session evidence reported while this access is valid will be grouped into a single Kosli trail with the name in the format `<SSO-session-grant-timestamp>-<user-name>`.
 The repository contains two modules - [evidence-reporter](https://github.com/kosli-dev/terraform-aws-evidence-reporter/tree/main/modules/evidence-reporter) and [session-saver](https://github.com/kosli-dev/terraform-aws-evidence-reporter/tree/main/modules/session-saver). Session-saver is supposed to be deployed to the SSO AWS account, where SSO-elevator resides. It captures access grant and revoke events and accordingly manages these event records in DynamoDB. Evidence-reporter is supposed to be deployed to the workload AWS account. Based on access event records in DynamoDB, it groups and sends the evidence reports to Kosli.
 
-## Set up Kolsi API token
+## Set up Kosli API token
 1. Log in to the https://app.kosli.com/, go to your profile, copy the `API Key` value.
 2. Store the Kosli API key value in an AWS SSM parameter (SecureString type). By default, the Lambda Reporter will search for the `kosli_api_token` SSM parameter name, but it is also possible to set custom parameter name (use `kosli_api_token_ssm_parameter_name` variable).
 
