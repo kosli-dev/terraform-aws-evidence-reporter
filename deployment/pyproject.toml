@@ -1,0 +1,21 @@
+[project]
+name = "evidence-reporter"
+version = "0"
+description = "Reports ECS exec sessions and their logs to Kosli"
+# The Lambda runtime, so the tests run on the interpreter production uses.
+requires-python = "==3.11.*"
+dependencies = [
+    # Packaged rather than taken from the Lambda runtime, so the package's
+    # lockfile names every library it runs.
+    "boto3==1.44.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest==9.0.3",
+    "moto==5.0.12",
+]
+
+[tool.uv]
+# The handlers are zipped in beside their dependencies, not installed as a package.
+package = false
