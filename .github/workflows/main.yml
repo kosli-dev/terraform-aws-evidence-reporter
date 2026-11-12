@@ -6,7 +6,26 @@ on:
 
 
 jobs:
+  # @main because lambda-package-publisher trusts only that branch of the workflow.
+  build:
+    uses: kosli-dev/tf/.github/workflows/build-lambda.yml@main
+    permissions:
+      id-token: write
+      contents: read
+      pull-requests: read
+    with:
+      package_name: evidence-reporter
+      source_path: deployment
+      python_version: "3.11"
+      bundle_kosli_cli: true
+      bundled_kosli_cli_version: ${{ github.event.client_payload.kosli_cli_tag }}
+    secrets:
+      kosli_api_token: ${{ secrets.KOSLI_API_TOKEN_PROD }}
+      kosli_github_token: ${{ secrets.GITHUB_TOKEN }}
+      policies_token: ${{ secrets.SDLC_POLICIES_CROSS_REPO_READ_TOKEN }}
+
   upload-package:
+    needs: [build]
     runs-on: ubuntu-24.04
     outputs:
       kosli_cli_version: ${{ steps.upload-package.outputs.kosli_cli_version }}
@@ -14,7 +33,9 @@ jobs:
       id-token: write
       contents: read
     steps:
-    - uses: actions/checkout@v7
+    - uses: actions/download-artifact@v8
+      with:
+        name: ${{ needs.build.outputs.artifact_name }}
 
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v6
@@ -24,17 +45,15 @@ jobs:
         role-duration-seconds: 900
         role-session-name: ${{ github.event.repository.name }}
 
+    # The zip Kosli attested, so every function deployed from the release runs
+    # the build trail's fingerprint.
     - name: Upload Evidence Reporter lambda package
       id: upload-package
       env:
         TAG: ${{ github.event.client_payload.kosli_cli_tag }}
       run: |
-        KOSLI_CLI_VERSION="${TAG:1}"
-        echo "kosli_cli_version=$KOSLI_CLI_VERSION" >> $GITHUB_OUTPUT
-        curl -Lo kosli_${KOSLI_CLI_VERSION}_linux_amd64.tar.gz https://github.com/kosli-dev/cli/releases/download/${TAG}/kosli_${KOSLI_CLI_VERSION}_linux_amd64.tar.gz
-        tar -xf kosli_${KOSLI_CLI_VERSION}_linux_amd64.tar.gz -C . && rm kosli_${KOSLI_CLI_VERSION}_linux_amd64.tar.gz
-        zip -j evidence_reporter_${KOSLI_CLI_VERSION}.zip deployment/* kosli
-        aws s3 cp evidence_reporter_${KOSLI_CLI_VERSION}.zip s3://${{ secrets.KOSLI_REPORTER_SOURCES_S3_NAME }}/evidence_reporter_${TAG}.zip
+        echo "kosli_cli_version=${TAG:1}" >> $GITHUB_OUTPUT
+        aws s3 cp package.zip s3://${{ secrets.KOSLI_REPORTER_SOURCES_S3_NAME }}/evidence_reporter_${TAG}.zip
 
   deploy-evidence-reporters:
     runs-on: ubuntu-24.04
